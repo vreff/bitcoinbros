@@ -1,25 +1,79 @@
 const { Telegraf } = require('telegraf');
 const { v4: uuidv4 } = require('uuid');
 const { TappdClient } = require('@phala/dstack-sdk');
-const axios = require('axios');
 const { Verifier } = require('bip322-js');
+const axios = require('axios');
+
+const debugMode = process.env.DEBUG;
+const githubToken = process.env.GITHUB_TOKEN;
+const botToken = process.env.BOT_TOKEN;
+const groupJoinLinks = {
+  'Nocoiners': process.env.NO_COINERS_JOIN_LINK,
+  'Prawns': process.env.PRAWNS_JOIN_LINK,
+  'Shrimps': process.env.SHRIMPS_JOIN_LINK,
+  'Crabs': process.env.CRABS_JOIN_LINK,
+  'Octopuses': process.env.OCTOPUSES_JOIN_LINK,
+  'Dolphins': process.env.DOLPHINS_JOIN_LINK,
+  'Sharks': process.env.SHARKS_JOIN_LINK,
+  'Whales': process.env.WHALES_JOIN_LINK,
+};
 
 const client = new TappdClient();
-
-const githubToken = process.env.GITHUB_TOKEN;
-
-const botToken = process.env.BOT_TOKEN;
 const bot = new Telegraf(botToken);
 
 const userStates = {};
+const userGroupCategory = {};
 
-bot.start((ctx) => {
-  ctx.reply(`Sup, bro. Use the /prove command to start proving your worth. Use the /finish command once you've added all your addresses, and I'll add you to the right group. All information and signatures you provide are verifiably confidential.`);
+debugMode && bot.use((ctx, next) => {
+  console.log('[BOT] Update received:', JSON.stringify(ctx.update));
+  return next();
 });
 
+bot.start((ctx) => {
+  ctx.reply(
+    `Sup, bro, hope you're having a friggin stoked day. Welcome to Bitcoin Bros.\n\n` +
+    `Use the /prove command to start proving your worth. When you run /prove, you'll need to prove ownership of a Bitcoin address by sigining a challenge. You can run /prove repeatedly to prove ownership of as many addresses as you want, but you only have 10 minutes to do so until your session is reset.\n\n` +
+    `Once you've finished proving your worth, bro, call the /finish command and I'll add you to the right group. Thanks to the Phala network, all information you share with me is verifiably confidential.`);
+});
+
+// Execute a challenge/response to prove ownership of a Bitcoin address.
+// See `bot.on('text', ...) for the full flow.
 bot.command('prove', async (ctx) => {
-  userStates[ctx.from.id] = { step: 'awaiting_address' };
-  ctx.reply('Please reply with your Bitcoin address to begin the proof process.');
+  userStates[ctx.from.id] = { ...userStates[ctx.from.id], step: 'awaiting_address' };
+  setUserStateTimeout(ctx.from.id);
+  ctx.reply('Reply with a Bitcoin address to begin the proof process.');
+});
+
+// Assign the user to a group based on their total balance.
+bot.command('finish', async (ctx) => {
+  const userId = ctx.from.id;
+  const state = userStates[userId] || {};
+  const totalBalance = state.totalBalance || 0;
+  let groupName;
+  if (totalBalance === 0) {
+    groupName = 'Nocoiners';
+  } else if (totalBalance > 0 && totalBalance < 10_000_000) {
+    groupName = 'Prawns';
+  } else if (totalBalance >= 10_000_000 && totalBalance < 100_000_000) {
+    groupName = 'Shrimps';
+  } else if (totalBalance >= 100_000_000 && totalBalance < 1_000_000_000) {
+    groupName = 'Crabs';
+  } else if (totalBalance >= 1_000_000_000 && totalBalance < 10_000_000_000) {
+    groupName = 'Octopuses';
+  } else if (totalBalance >= 10_000_000_000 && totalBalance < 50_000_000_000) {
+    groupName = 'Dolphins';
+  } else if (totalBalance >= 50_000_000_000 && totalBalance < 100_000_000_000) {
+    groupName = 'Sharks';
+  } else if (totalBalance >= 100_000_000_000) {
+    groupName = 'Whales';
+  }
+  await ctx.reply(
+    `Alright bro, the results are in.\n\n` +
+    `Your total verified balance is ${totalBalance / 100_000_000} BTC, which makes you a ${groupName[0].toLocaleUpperCase()}${groupName.slice(1, groupName.length - 1)}. I'll add you to that group right now.`
+  );
+  userGroupCategory[userId] = groupName;
+  await addUserToGroup(ctx, groupName);
+  delete userStates[userId];
 });
 
 bot.on('text', async (ctx) => {
@@ -32,19 +86,29 @@ bot.on('text', async (ctx) => {
     const btcAddress = ctx.message.text.trim();
     const btcRegex = /^(bc1[qpzry9x8gf2tvdw0s3jn54khce6mua7l]{25,39}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/;
     if (!btcRegex.test(btcAddress)) {
-      ctx.reply('❌ That does not look like a valid Bitcoin address. Please try again.');
+      ctx.reply(`❌ That's not a valid Bitcoin address, bro. Try again.`);
       return;
     }
-    userStates[userId] = { step: 'challenge', btcAddress };
 
-    // Generate challenge
+    if (!userStates[userId].usedAddresses) userStates[userId].usedAddresses = [];
+    if (userStates[userId].usedAddresses.includes(btcAddress)) {
+      ctx.reply(`❌ You've already used this Bitcoin address, bro. Use a different one or just run the /finish command.`);
+      return;
+    }
+
+    userStates[userId] = { ...userStates[userId], step: 'challenge', btcAddress };
+
     const challengeId = 'BITCOIN_BROS_CHALLENGE_' + uuidv4();
     const timestamp = new Date().toISOString().replace('T', ' ').replace(/\..+/, ' UTC');
-    const quoteResult = await client.tdxQuote(challengeId, 'raw');
-
-    const gistContent = `Challenge ID: ${challengeId}\nBitcoin Address: ${btcAddress}\nTimestamp: ${timestamp}\nQuote: ${quoteResult.quote}\nThe quote can be verified at: https://proof.t16z.com/`;
+    const quoteResult = debugMode ? { quote: 'DEBUG_MODE' } : await client.tdxQuote(challengeId, 'raw');
 
     let gistUrl;
+    const gistContent =
+      `Challenge ID: ${challengeId}\n` +
+      `Bitcoin Address: ${btcAddress}\n` +
+      `Timestamp: ${timestamp}\n` +
+      `Quote: ${quoteResult.quote}\n` +
+      `The quote can be verified at: https://proof.t16z.com/`;
     try {
       const res = await axios.post(
         'https://api.github.com/gists',
@@ -75,13 +139,12 @@ bot.on('text', async (ctx) => {
     }
 
     const challengeText =
-      `Please sign this challenge text with your bitcoin wallet to prove your identity: \n\n${challengeId}\n\n` +
+      `Sign this challenge text with your bitcoin wallet to prove your identity: \n\n${challengeId}\n\n` +
       `Reply with only a signature of the above challenge text.\n\n` +
       `Attestation of privacy & integrity: ${gistUrl}\n\n`;
     ctx.reply(challengeText);
 
-    // Save challengeId for signature verification
-    userStates[userId] = { step: 'awaiting_signature', btcAddress, challengeId };
+    userStates[userId] = { ...userStates[userId], step: 'awaiting_signature', btcAddress, challengeId };
   } else if (state.step === 'awaiting_signature') {
     // The user is expected to reply with a signature
     const signature = ctx.message.text.trim();
@@ -89,16 +152,67 @@ bot.on('text', async (ctx) => {
     try {
       const isValid = await Verifier.verifySignature(btcAddress, challengeId, signature);
       if (isValid) {
-        ctx.reply('✅ Signature verified! You have proven ownership of your Bitcoin address.');
-        userStates[userId] = { step: 'done', btcAddress, challengeId };
+        let balance = 0;
+        try {
+          const resp = await axios.get(`https://blockstream.info/api/address/${btcAddress}`);
+          if (resp.data && typeof resp.data.chain_stats.funded_txo_sum === 'number' && typeof resp.data.chain_stats.spent_txo_sum === 'number') {
+            balance = (resp.data.chain_stats.funded_txo_sum - resp.data.chain_stats.spent_txo_sum);
+          }
+        } catch (err) {
+          ctx.reply(`⚠️ Coulddn't fetch balance: ` + (err.response?.data?.message || err.message));
+        }
+
+        if (!userStates[userId].totalBalance) userStates[userId].totalBalance = 0;
+        userStates[userId].totalBalance += balance;
+
+        if (!userStates[userId].usedAddresses) userStates[userId].usedAddresses = [];
+        userStates[userId].usedAddresses.push(btcAddress);
+
+        ctx.reply(`✅ Signature verified, bro. You've proven ownership of your Bitcoin address.\nBalance: ${balance} BTC\nTotal verified balance: ${userStates[userId].totalBalance} BTC`);
+        userStates[userId] = { ...userStates[userId], step: 'done', btcAddress, challengeId, totalBalance: userStates[userId].totalBalance, usedAddresses: userStates[userId].usedAddresses };
       } else {
-        ctx.reply('❌ Signature verification failed. Please try again or restart the process.');
+        ctx.reply(`❌ Signature verification failed, bro. Try again or restart the process with the /prove command.`);
       }
     } catch (error) {
-      ctx.reply('❌ Error during verification: ' + error.message);
+      ctx.reply(`❌ Error during verification: ` + error.message);
     }
   }
 });
+
+// Approve join requests if user has been rightfully assigned to the group.
+bot.on('chat_join_request', async (ctx) => {
+  const userId = ctx.chatJoinRequest.from.id;
+  const groupName = Object.keys(groupJoinLinks).find(key => groupJoinLinks[key] && ctx.chatJoinRequest.invite_link && ctx.chatJoinRequest.invite_link.invite_link && groupJoinLinks[key].includes(ctx.chatJoinRequest.invite_link.invite_link.replace('https://t.me/', '').replaceAll('.', '')));
+  if (groupName && userGroupCategory[userId] === groupName) {
+    await ctx.approveChatJoinRequest(userId);
+    await ctx.reply(`Welcome to the ${groupName} group, ${ctx.chatJoinRequest.from.username ? '@' + ctx.chatJoinRequest.from.username : ctx.chatJoinRequest.from.first_name}.`);
+  } else {
+    await ctx.declineChatJoinRequest(userId);
+    try {
+      await ctx.telegram.sendMessage(ctx.chatJoinRequest.from.id, `Sorry, you are not allowed to join this group, bro.`);
+    } catch (e) {
+      console.error('Failed to send DM:', e.message);
+    }
+  }
+});
+
+function setUserStateTimeout(userId) {
+  if (userStates[userId] && userStates[userId].timeout) return
+  if (userStates[userId]) {
+    userStates[userId].timeout = setTimeout(() => {
+      delete userStates[userId];
+    }, 10 * 60 * 1000);
+  }
+}
+
+async function addUserToGroup(ctx, groupName) {
+  const link = groupJoinLinks[groupName];
+  if (link) {
+    await ctx.reply(`Click to request to join the ${groupName} group: ${link}`);
+  } else {
+    await ctx.reply(`Sorry, no group link found for: ${groupName}`);
+  }
+}
 
 bot.launch();
 
