@@ -4,6 +4,7 @@ const { TappdClient } = require('@phala/dstack-sdk');
 const { Verifier } = require('bip322-js');
 const axios = require('axios');
 
+const satsInABitcoin = 100_000_000.0;
 const debugMode = process.env.DEBUG;
 const githubToken = process.env.GITHUB_TOKEN;
 const botToken = process.env.BOT_TOKEN;
@@ -52,24 +53,24 @@ bot.command('finish', async (ctx) => {
   let groupName;
   if (totalBalance === 0) {
     groupName = 'Nocoiners';
-  } else if (totalBalance > 0 && totalBalance < 10_000_000) {
+  } else if (totalBalance > 0 && totalBalance < .1 * satsInABitcoin) {
     groupName = 'Prawns';
-  } else if (totalBalance >= 10_000_000 && totalBalance < 100_000_000) {
+  } else if (totalBalance >= .1 * satsInABitcoin && totalBalance < satsInABitcoin) {
     groupName = 'Shrimps';
-  } else if (totalBalance >= 100_000_000 && totalBalance < 1_000_000_000) {
+  } else if (totalBalance >= satsInABitcoin && totalBalance < 10 * satsInABitcoin) {
     groupName = 'Crabs';
-  } else if (totalBalance >= 1_000_000_000 && totalBalance < 10_000_000_000) {
+  } else if (totalBalance >= 10 * satsInABitcoin && totalBalance < 100 * satsInABitcoin) {
     groupName = 'Octopuses';
-  } else if (totalBalance >= 10_000_000_000 && totalBalance < 50_000_000_000) {
+  } else if (totalBalance >= 100 * satsInABitcoin && totalBalance < 500 * satsInABitcoin) {
     groupName = 'Dolphins';
-  } else if (totalBalance >= 50_000_000_000 && totalBalance < 100_000_000_000) {
+  } else if (totalBalance >= 500 * satsInABitcoin && totalBalance < 1000 * satsInABitcoin) {
     groupName = 'Sharks';
-  } else if (totalBalance >= 100_000_000_000) {
+  } else if (totalBalance >= 1000 * satsInABitcoin) {
     groupName = 'Whales';
   }
   await ctx.reply(
     `Alright bro, the results are in.\n\n` +
-    `Your total verified balance is ${totalBalance / 100_000_000} BTC, which makes you a ${groupName[0].toLocaleUpperCase()}${groupName.slice(1, groupName.length - 1)}. I'll add you to that group right now.`
+    `Your total verified balance is ${(totalBalance / satsInABitcoin).toFixed(8)} BTC, which makes you a ${groupName[0].toLocaleUpperCase()}${groupName.slice(1, groupName.length - 1)}. I'll add you to that group right now.`
   );
   userGroupCategory[userId] = groupName;
   await addUserToGroup(ctx, groupName);
@@ -139,10 +140,10 @@ bot.on('text', async (ctx) => {
     }
 
     const challengeText =
-      `Sign this challenge text with your bitcoin wallet to prove your identity: \n\n${challengeId}\n\n` +
-      `Reply with only a signature of the above challenge text.\n\n` +
+      `Sign this challenge text with your bitcoin wallet to prove your identity:\n\n${challengeId}\n\n` +
+      `<b>Reply with a signature of the above challenge text, and nothing else.</b>\n\n` +
       `Attestation of privacy & integrity: ${gistUrl}\n\n`;
-    ctx.reply(challengeText);
+    ctx.reply(challengeText, { parse_mode: 'HTML' });
 
     userStates[userId] = { ...userStates[userId], step: 'awaiting_signature', btcAddress, challengeId };
   } else if (state.step === 'awaiting_signature') {
