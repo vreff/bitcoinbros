@@ -18,7 +18,7 @@ jobs:
       - name: Log in to DockerHub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          username: chrisfcushman
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
@@ -26,4 +26,15 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bitcoin-bros:pr-${{ github.event.pull_request.number }}
+          tags: chrisfcushman/bitcoin-bros:pr-${{ github.event.pull_request.number }}
+
+      - name: Get Docker image digest
+        id: docker_digest
+        run: |
+          echo "digest=$(docker buildx imagetools inspect chrisfcushman/bitcoin-bros:pr-${{ github.event.pull_request.number }} | grep 'Digest:' | head -n1 | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - name: Output Docker image URL and digest to summary
+        run: |
+          echo "### Docker image published" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://hub.docker.com/r/chrisfcushman/bitcoin-bros/tags?name=pr-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Digest:** ${{ steps.docker_digest.outputs.digest }}" >> $GITHUB_STEP_SUMMARY
