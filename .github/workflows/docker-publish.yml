@@ -28,7 +28,7 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/bitcoin-bros:pr-${{ github.event.pull_request.number }}
 
-      - name: Output Docker image tag to summary
+      - name: Output Docker image URL to summary
         run: |
           echo "### Docker image published" >> $GITHUB_STEP_SUMMARY
-          echo "**Tag:** ${{ secrets.DOCKERHUB_USERNAME }}/bitcoin-bros:pr-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://hub.docker.com/r/${{ secrets.DOCKERHUB_USERNAME }}/bitcoin-bros/tags?name=pr-${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
