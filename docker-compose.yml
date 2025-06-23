@@ -17,4 +17,3 @@ services:
       - DOLPHINS_JOIN_LINK=${DOLPHINS_JOIN_LINK}
       - SHARKS_JOIN_LINK=${SHARKS_JOIN_LINK}
       - WHALES_JOIN_LINK=${WHALES_JOIN_LINK}
-    restart: unless-stopped
