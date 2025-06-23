@@ -1,0 +1,11 @@
+services:
+  app:
+    image: chrisfcushman/bitcoinbros:latest
+    container_name: app
+    ports:
+      - "3000:3000"
+    volumes:
+      - /var/run/tappd.sock:/var/run/tappd.sock
+    environment:
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+      - BOT_TOKEN=${BOT_TOKEN}

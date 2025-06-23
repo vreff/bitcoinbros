@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@phala/dstack-sdk": "^0.2.2",
+    "axios": "^1.10.0",
+    "bip322-js": "^3.0.0",
+    "bitcoinjs-lib": "^6.1.7",
+    "querystring": "^0.2.1",
+    "telegraf": "^4.16.3",
+    "uuid": "^11.1.0"
+  }
+}

@@ -1,0 +1,4 @@
+**/.phala-cloud/*
+**/node_modules/*
+**/dist/*
+**/.env
