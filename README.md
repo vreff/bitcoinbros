@@ -35,7 +35,7 @@ Start the [bot](https://t.me/BitcoinBrosBot) using the `/start` command. It will
 ## Confidentiality
 This Telegram bot is hosted on Phala Cloud, with application ID [9284f0eeeea64629be1b172eb6fac51e](https://cloud.phala.network/explorer/9284f0eeeea64629be1b172eb6fac51e). Confidentiality of user data including addresses and signatures is enforced by the confidential VMs hosted there. Every challenge provided by the bot comes with evidence that the challenge originated from the linked Phala VM instance that uses the source code in this repository. Once Telegram has delivered data to the bot, that data is not transmitted elsewhere, as per the `bot.js` source code in this repository.
 
-### Sparrow+Ledger Instructions
+## Sparrow+Ledger Instructions
 In order to sign challenges issued by the Bitcoin Bros Telegram bot, you need wallet software that is capable of signing arbitrary data. The following is an illustrative example of accomplishing this by using the Sparrow Wallet with a Ledger hardware wallet, which should be a common pattern among Bitcoin users:
 - Once you have the Sparrow wallet downloaded, ensure your Ledger has the Bitcoin app installed. Go ahead and start up the Bitcoin app:<br/>
 <img src="https://github.com/user-attachments/assets/c963e97c-3dc5-4882-99e4-2e3b4ad4cb0b" width="400"/><br/>
