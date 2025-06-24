@@ -33,7 +33,7 @@ Start the [bot](https://t.me/BitcoinBrosBot) using the `/start` command. It will
 - Note that you only have ten minutes to complete the verification process, as to prevent manipulation of on-chain balances.
 
 ## Confidentiality
-This Telegram bot is hosted on [Phala Cloud](https://cloud.phala.network/), with application ID [9284f0eeeea64629be1b172eb6fac51e](https://cloud.phala.network/explorer/9284f0eeeea64629be1b172eb6fac51e). Confidentiality of user data including addresses and signatures is enforced by the confidential VMs hosted there. Every challenge provided by the bot comes with evidence that the challenge originated from the linked Phala VM instance that uses the source code in this repository. Once Telegram has delivered data to the bot, that data is not transmitted elsewhere, as per the `bot.js` source code in this repository.
+This Telegram bot is hosted on [Phala Cloud](https://cloud.phala.network/), with application ID [3a4c0ba5a17b6ac39ddbd41c257c621bd7867be9](https://cloud.phala.network/explorer/83d619452a4f43178e7c30a0f9e44422) running this repository's source code at commit [df55b55](https://github.com/vreff/bitcoinbros/actions/runs/15859008131?pr=3). Confidentiality of user data including addresses and signatures is enforced by the confidential VMs hosted there. Every challenge provided by the bot comes with evidence that the challenge originated from the linked Phala VM instance that uses the source code in this repository. Once Telegram has delivered data to the bot, that data is stored or transmitted elsewhere, as per the source code in this repository.
 
 ## Sparrow+Ledger Instructions
 In order to sign challenges issued by the Bitcoin Bros Telegram bot, you need wallet software that is capable of signing arbitrary data. The following is an illustrative example of accomplishing this by using the Sparrow Wallet with a Ledger hardware wallet, which should be a common pattern among Bitcoin users:
@@ -44,3 +44,6 @@ In order to sign challenges issued by the Bitcoin Bros Telegram bot, you need wa
 <img width="651" alt="Screenshot 2025-06-23 at 6 32 40 PM" src="https://github.com/user-attachments/assets/50c3d285-8fc4-46e7-80b8-add90e5c5b35" /><br/>
 - After importing your ledger, navigate to "Addresses" section in the left pane. Right click on any of your available addresses and click "Sign/Verify Message." Attached is an example signature on a real challenge from the Bitcoin Bros bot:
   <img width="574" alt="Screenshot 2025-06-23 at 6 38 29 PM" src="https://github.com/user-attachments/assets/0d560040-595e-4f0b-ab27-196b5aa0dd39" />
+
+## Disclosures
+This project is for entertainment and educational purposes; it is not intended for monetization.
