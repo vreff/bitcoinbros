@@ -6,7 +6,7 @@ Connect with Bitcoiners of similar sats: https://t.me/BitcoinBrosBot<br/><br/>
 ## What is it?
 Bitcoin Bros is a Telegram bot that allows Bitcoiners like yourself to pseudanonymously network with Bitcoiners of similar sats by using the shrimp-fish-whale paradigm to bucket users:<br/>
 <img src="https://github.com/user-attachments/assets/a85fc388-256e-49df-84bc-89d50743c186" width="400"/>
-<br/><br/>
+<br/>
 To be exact, Bitcoin Bros groups users over the following denominations:<br/>
 | Rank      | Holdings           |
 |-----------|--------------------|
