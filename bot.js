@@ -169,7 +169,7 @@ bot.on('text', async (ctx) => {
         if (!userStates[userId].usedAddresses) userStates[userId].usedAddresses = [];
         userStates[userId].usedAddresses.push(btcAddress);
 
-        ctx.reply(`✅ Signature verified, bro. You've proven ownership of your Bitcoin address.\nBalance: ${balance} BTC\nTotal verified balance: ${userStates[userId].totalBalance} BTC`);
+        ctx.reply(`✅ Signature verified, bro. You've proven ownership of your Bitcoin address.\nBalance: ${balance / satsInABitcoin} BTC\nTotal verified balance: ${userStates[userId].totalBalance / satsInABitcoin} BTC`);
         userStates[userId] = { ...userStates[userId], step: 'done', btcAddress, challengeId, totalBalance: userStates[userId].totalBalance, usedAddresses: userStates[userId].usedAddresses };
       } else {
         ctx.reply(`❌ Signature verification failed, bro. Try again or restart the process with the /prove command.`);
