@@ -43,4 +43,4 @@ In order to sign challenges issued by the Bitcoin Bros Telegram bot, you need wa
 - You should see your ledger available for import as is shown below: 
 <img width="651" alt="Screenshot 2025-06-23 at 6 32 40 PM" src="https://github.com/user-attachments/assets/50c3d285-8fc4-46e7-80b8-add90e5c5b35" /><br/>
 - After importing your ledger, navigate to "Addresses" section in the left pane. Right click on any of your available addresses and click "Sign/Verify Message." Attached is an example signature on a real challenge from the Bitcoin Bros bot:
-<img width="574" alt="Screenshot 2025-06-23 at 6 38 29 PM" src="https://github.com/user-attachments/assets/0d560040-595e-4f0b-ab27-196b5aa0dd39" />
+  <img width="574" alt="Screenshot 2025-06-23 at 6 38 29 PM" src="https://github.com/user-attachments/assets/0d560040-595e-4f0b-ab27-196b5aa0dd39" />
