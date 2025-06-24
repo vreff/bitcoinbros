@@ -8,14 +8,16 @@ Bitcoin Bros is a Telegram bot that allows Bitcoiners like yourself to pseudanon
 <img src="https://github.com/user-attachments/assets/a85fc388-256e-49df-84bc-89d50743c186" width="400"/>
 <br/><br/>
 To be exact, Bitcoin Bros groups users over the following denominations:<br/>
-Nocoiner: 0 sats<br/>
-Prawn: 1 sat - .1 BTC<br/>
-Shrimp: .1 BTC - 1 BTC<br/>
-Crab: 1 BTC - 10 BTC<br/>
-Octopus: 10 BTC - 100 BTC<br/>
-Dolphin: 100 BTC - 500 BTC<br/>
-Shark: 500 BTC - 1000 BTC<br/>
-Whale: 1000 BTC+<br/><br/>
+| Rank      | Holdings           |
+|-----------|--------------------|
+| Nocoiner  | 0 sats             |
+| Prawn     | 1 sat – 0.1 BTC    |
+| Shrimp    | 0.1 BTC – 1 BTC    |
+| Crab      | 1 BTC – 10 BTC     |
+| Octopus   | 10 BTC – 100 BTC   |
+| Dolphin   | 100 BTC – 500 BTC  |
+| Shark     | 500 BTC – 1000 BTC |
+| Whale     | 1000 BTC+          |
 
 The Bitcoin Bros bot cryptographically verifies the amount of Bitcoin you own, and then places you into a Telegram group representing one of these buckets. Once you activate the bot using the [link](https://t.me/BitcoinBrosBot), you can use the `/prove` command repeatedly to prove the balance of each of your Bitcoin addresses. Once you complete the proceess, run the `/finish` command and the Bitcoin Bros bot will assign you to a Telegram group based on where you fall in the shrimp-fish-whale paradigm.
 
